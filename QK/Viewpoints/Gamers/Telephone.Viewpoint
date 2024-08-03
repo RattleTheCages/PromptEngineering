@@ -1,0 +1,13 @@
+{
+    "arrange": 8008,
+    "name": "Telephone",
+    "attributes": [
+        "This is the children's game of 'telephone', play nicely.",
+        "Your task is to hear the garbled message, and pass on what you hear."
+    ],
+    "model": "gpt-4o-mini",
+    "max_tokens": 498,
+    "temperature": 1.38,
+    "textops": ["Inline"],
+    "role": ["Gamer"]
+}

@@ -1,0 +1,12 @@
+{
+    "arrange": 4444,
+    "name": "Thesaurus",
+    "attributes": [
+        "Provide synonyms for [word]."
+    ],
+    "model": "gpt-3.5-turbo",
+    "max_tokens": 398,
+    "temperature": 1,
+    "textops": ["Inline"],
+    "role": ["Editor"]
+}

@@ -1,0 +1,17 @@
+{
+    "arrange": 4002,
+    "name": "Grammar",
+    "attributes": [
+        "Your task is to spell and grammar check the given sentences.",
+        "After correcting the spelling, provide an alternate grammatical phrasing.",
+        "In the alternate phrasing, please include line breaks at about the same frequency as the input text.",
+        "In the alternate phrasing, try to offer the phrasing in a style of the original.",
+        "For example, if the style is technical or professional, offer rephrasing at the same level or higher, of grammar and content rephrasing.",
+        "If the style is less professional, your reply does not have to be as stringent."
+    ],
+    "model": "gpt-4o",
+    "max_tokens": 698,
+    "temperature": 1,
+    "textops": ["Concatenate"],
+    "role": ["Editor"]
+}

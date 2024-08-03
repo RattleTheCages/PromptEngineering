@@ -1,0 +1,462 @@
+
+
+                                Introduction
+
+Welcome to the QK Editor, or 'qk' ;) for short. The QK Editor is Prompt Engineering AI-assistance with a text editor attached.
+The QK Editor is a sophisticated tool designed to enhance productivity by integrating AI-assisted Prompt Engineering with an intuitive text editing environment.
+QK Editor's thoroughbred user interface design enhances productivity by featuring multiple markups, quick AI prompting, and inline spelling and textual corrections.
+The QK Editor innovates with unique features such as the AI Quick Key, which is the backslash key (\), used for immediate prompting of the AI,
+and Multiple markup options, such as inline, refactor, and concatenate. And an intuitive dual-panel display.
+The Prompt Engineering Panel is used to craft prompts for AI commands. And an Editor Panel that provides an area for the AI to edit text, and perhaps the user to join in.
+The QK Editor quickly corrects entire lines of misspelled words with a simple keystroke, removing the need for awkward manual correction steps.
+The QK Editor automatically integrates the AI modified text into the editor panel and offers various versions for proofreading and final markup.
+
+
+                    The Prompt Engineering Panel (Bottom Panel)
+
+The Prompt Engineering Panel serves as the primary interface for user queries and commands for the AI. Users type Engineering Prompts to request AI-assisted actions.
+In this panel, write Prompts that describe commands, queries, or requests for AI-driven actions such as grammar checking,
+code generation, technical documentation, or text games.
+
+Prompt Engineering, AI Command Input:
+Users craft prompts in the prompt area, which is the bottom panel, to interact with the AI, and receive assistance.
+Prompts may include requests for grammar corrections, specific code generation tasks, technical writing, informal writing, or broader, or any queries requesting AI assistance.
+
+Viewpoint Switching:
+The prompt in the Prompt Engineering Panel shows the current AI assistant Viewpoint, e.g. Spelling, Python Coder.
+Choose the Viewpoint you want to use by depressing ctrl-v. Cycle through the available Viewpoints until the prompt displays the desired type of AI assistance.
+This feature allows users to switch between various AI Viewpoints or personality modes, each designed for distinct types of assistance.
+For example, the AI can operate in Technical Writing mode, Grammar checking mode, or Python Coding mode.
+This flexibility allows users to tailor their AI assistance, with responses aligning closely with their current text or code editing requirements.
+Viewpoints are loadable and configurable. Please see the Viewpoints section.
+
+Execution and Validation:
+Use ctrl-e, to shell out and execute the code that is in the Editor Panel.
+The results, or syntax errors, are returned, and placed into the Prompt Engineering Panel.
+Placing the results in the Prompt Engineering panel quickly facilitates turnaround of bugs and results, because the user can easily just hit backslash and send the failed results back to the AI coder.
+
+
+                    The Editor Panel (Top Panel)
+
+The Editor Panel (Top Panel) serves as the primary area where the AI, and sometimes the user, can interact, input and edit text or code directly.
+The Editor Panel area is the main workspace for text and code editing. The Editor Panel, the Top Panel provides an environment where AI edits
+it's returned text and users can efficiently type, navigate, and edit their content.
+
+Text Entry: AI places generated text and code, and users can freely type and input text or code directly into the editor text area.
+Markup: AI replies are marked up in various ways, and the marked up versions can be viewed and accessed here. Use ctrl-t to cycle through various markups to find the most useful for this reply.
+Navigation: The arrow keys will navigate within the text, moving the cursor through lines and characters.
+Text Manipulation: The editor supports typical editor commands, including typing, deleting, copying, and pasting text.
+Line Numbering: The left-hand column contains the line number, and a status.  (The left column can be omitted if desired, use ctrl-g.)
+Use ctrl-a to toggle between panels.
+
+
+                    Status Line (Bottom Line)
+
+The status line at the bottom displays the session filename, the current revision number and type that is being displayed in the Editor Panel.
+The status line contains a running summary of the Prompts that have been sent to the AI during the session.
+
+
+AI Commands:
+Backslash Key ('\'): Executes an AI command prompt using the current Viewpoint.
+Explanation: This keystroke sends the current context, and the prompt, to the AI for processing. The nature of the processing depends on the active viewpoint. For instance, if the viewpoint
+Is set to Grammar, the AI will check the text for grammatical errors and provide corrections. If the viewpoint is set to a Coder,
+the AI will generate or refactor code based on the type of Coder and the given instructions.
+
+Viewpoint Command: ctrl-v: Changes the AI’s Viewpoint.
+Explanation: This keystroke cycles through different AI viewpoints, such as Spelling, Grammar, Python Coder, etc. Changing viewpoints adjusts the AI’s focus,
+equipping it with specific functionalities tailored to the task at hand. For example, selecting the Spelling viewpoint enables the AI to focus on correcting spelling errors,
+whereas selecting the Python Coder viewpoint enables the AI to assist with code generation and modification.
+
+Panel Command: ctrl-a: Switches the cursor between the Prompt Engineering Panel and the Editor Panel.
+Explanation: This keystroke allows users to toggle between Prompt Engineering Panel (Bottom Panel, AI command panel), and the Editor Panel (Top Panel), the text editing panel.
+This enables users to switch contexts easily, moving from editing text to issuing prompts to the AI.
+
+
+Quick Sessions.
+
+During the Prompt Engineering development of the QK Editor, from raw API calls to a polished product, I noted my workflow.
+Breaking up engineering prompts into bite-sized sessions seemed to occur naturally, so I emphasized, and expanded this for use with the QK Editor.
+A Quick Session is basically a bite sized piece of the entire work that is vying trying to accomplish.
+
+Lifecycle of a Quick Session:
+Check out the text or code from whichever repository it is stored. This project is stored on GitHub, but my previous employment used svn.
+The QK Editor, and Quick Sessions, are compatible with both and all repositories in this manner.
+
+Execute the shell command line for QK with the name of the file to be edited on the command line. E.g.
+bash> QK RedRose.py
+
+Type a Prompt, or several Prompts, in the Prompt Engineering Panel. E.g.
+Python Coder> Refactor the WaterFlower(), remove unneeded logic.
+Python Coder> Also change any calls to WaterFlower() in the code to match the new arguments.
+Hit the Backslash Key to send the Engineering Prompts to the AI.
+
+Currently the Coders are using OpenAI's gpt-4o which is doing well with coding tasks, but, as AI goes,
+It sometimes fails, places random artifacts, and does not complete lines.
+When AI returns text, there are several code markups to choose from. Choose 'Markup', it is the first subrevision shown in the Editor Panel upon AI's reply.
+The 'Markup' subrevision will have all the modified functions placed in the the code, commented out, just under the original function for user review.
+This markup facilitates the ability to examine each change. And, if desired, uncomment each function, one at a time for testing.
+The Markup subrevision also includes the entire AI reply concatenated, but still commented out, at the bottom of the Editor Panel, for reference.
+Saving the Markup subrevision, will not change any of the previous functionality of the code, since all new and modified code is commented out, (unless the user has edited it manually).
+In the best case scenario, all the modified code returned from the AI is correct and can be readily used to replace each function without user intervention. When this is the case,
+cycle (ctrl-t) to the 'Refactor' subrevision.  The Refactor subrevision has removed all the old functions and replaced them with the AI modified functions.
+Proceed reviewing and editing. Find a suitable subrevision, edit the code or text if needed. Then save the file.
+
+Execute the code.  This can be done by returning to the bash shell, or the code can be executed in place, in QK,
+and have the results shown on in the Prompt Engineering Panel. This is useful when the code has syntax errors or other errors that are
+Placed on stderr. Because the user can just hit the backslash key, the AI Quick Key, again, and send the code back to the AI to fix its errors.
+
+Continue the cycle of writing Prompts to the AI, E.g.
+"Change WaterFlower() to return the amount of water used."
+Continue the cycle of prompting, getting and editing the results returned from AI.
+Test and execute the new and modified code files.
+Continue this cycle until the session task is complete.
+
+The changes are ready to be submitted into the repository from which they came. Submit the changed file.
+Since, during the Quick Session, QK never deletes any files, there will be all be revisions of the file stored in the current directory.
+These are useful in several ways. During the Quick Session Lifecycle, is it sometimes desirable to move back several steps.
+When this is needed, users exit QK, find the revision of the file the user desires to start anew by copying that file
+to the session file name, and restart QK with the session filename.
+It is also helpful to look through all the Engineering Prompts. All the Prompts, and their results, are saved in files.
+This can facilitate audits or analyze the prompting history.
+Enter the bash command 'ls -tr *.pmt | xargs cat' to show all the Prompts that were issued during the Quick Session.
+(There will be features in future editions of QK, for items like reviewing the Prompts, and such...)
+
+The Quick Session is complete. Review the Prompts, save the revisions, or, if desired delete everything, (the file is checked into the repository),
+and start the next Quick Session with a clean directory.
+
+
+Mark and highlight text for AI's consideration:
+
+The Extract command, ctrl-x:
+Use Ctrl-X to mark specific text or code in the Editor Panel for the AI's consideration.
+By default, the entire text in the Editor Panel is sent to the AI upon the AI Quick Key command.
+Often it is desirable to highlight a section of text or code (perhaps a function) for the AI to deliberate.
+Place the cursor on the top line of the text or code to highlight for the AI's consideration.
+Consecutively, depress ctrl-x for multiple lines. Each ctrl-x command will mark the current line, as shown in the left status column, and move the cursor down one line.
+Use Case:
+Instead of the prompt:
+"Refactor function MoveGamePieces()"
+Use the mark command to highlight the MoveGamePieces() function, in the Editor Panel, and issue this prompt instead:
+"Refactor this function."
+
+
+Copy and Paste:
+Use ctrl-x to mark text or code for the 'yank' command, for copy and paste operations:
+As detailed above, use ctrl-x to mark one or more lines of text or code.
+After the text is marked, use the ctrl-y command instructions below.
+
+The Yank Command, ctrl-y, copy command:
+Depress ctrl-y to 'yank', that is copy, the currently marked text to an unseen clipboard.
+Move the cursor to the desired location to paste the copied text.
+
+The Paste Command, ctrl-p:
+Depress ctrl-p to paste the contents of the unseen clipboard to the current location of the cursor.
+
+
+
+How to Perform a Search with QK ;)
+
+This guide will walk you through the process of initiating a search, navigating through the results, and interpreting the feedback given by the QK Editor.
+
+Initiating a Search:
+Place the cursor in the Prompt Engineering Panel (Bottom Panel, use ctrl-a to toggle between panels):
+Place the cursor on any empty line. This is where you will enter the search term.
+
+Enter the Search Term:
+Type the exact text you are looking for on a single line. Ensure the search term is isolated on that line.
+
+Activate the Search:
+Depress ctrl-f to initiate the search for the entered term.
+The QK Editor will search for the term throughout the document and provide the number of locations in the left status column.
+
+Navigating Search Results:
+The QK Editor highlights the first occurrence of the search term in the Editor Panel (top panel),
+places the panel scroll in the middle for convenience, and the cursor in the Editor Panel at the location.
+Depress ctrl-n to jump to the next occurrence of the search term. The cursor will move to the next instance.
+The instance will be highlighted and the panel scroll is placed in the middle.
+Depress ctrl-p to return to the previous occurrence.  This will reposition the cursor to the previous instance of the search term and highlight it.
+
+Search Feedback:
+The OK Editor provides feedback to provide information about the search operation's results.
+Search Count Display:
+After initiating the search, the editor displays the number of occurrences found, in the left column status area.
+No Match Feedback:
+If the search term is not found, the editor will show a "not found" message in the status area.
+
+
+
+How to Perform a Replace with QK ;)
+
+In the past, users had to manually search for and replace text in their documents. This was a tedious process often requiring multiple steps to achieve a simple replacement.
+Using the QK Editor, this antiquated method is deprecated. Utilizing AI, text replacement tasks are now handled effortlessly by the AI in the editor, itself.
+
+Steps to Replace Text:
+Be in the Prompt Engineering Panel:
+Ensure the cursor is in the bottom panel, the Prompt Engineering Panel, AI command prompt panel. If needed, switch to this panel using ctrl-a.
+
+Type Your Prompt for Text Replacement:
+Formulate a prompt that commands the AI on what text to replace and where to perform the replacements. For instance, you can type:
+Coder Prompt> Replace all instances of 'oldVariable' with 'newVariable' in the QKCogEngine object.
+Tell AI to do it.
+Depress the Backslash key, The AI Quick Key!, to have AI execute the prompt. This action sends your request to the AI for processing.
+
+Review and Save:
+The QK Editor presents the results with various markups such as deprecated, refactored, or concatenated.
+Use ctrl-t to cycle through the edit markups.  Once you are satisfied with the changes, press ctrl-w to write the changes to the file.
+
+Example Replace:
+Say you would like to change all instances of the variable `HotPink` to `LightGreen` in your code. Follow these steps:
+In the Prompt Engineering Panel, type:
+AI Coder Prompt> Replace all instances of 'HotPink' with 'LightGreen'.
+Depress the Backslash key.
+Choose your markup
+Check the AI's work by viewing the deprecated markup, then switch, ctrl-t, to the refactor markup so you do not have to edit at all. Hit ctrl-w to write the modified file.
+
+
+
+File Operation:
+
+The Write Command, ctrl-w, command will write the Editor Panel contents to the session filename.
+Each QK execution is a session, with a filename associated with the session.  Place the filename on the command line during the execution call.
+This is the session filename, and the file that will be written to during the text editing.
+The QK Editor is built for 'Quick Sessions', a lifecycle concept explained above.  As such, QK contains its own revision system during the Quick Session.
+Users use ctrl-w, the write command, to trigger aspects of the versioning system.
+During a session, your previous revisions of the text are never lost, deleted, or overwritten.
+Each new Write Command renames the old version of the file to a file with the revision number, before writing the altered text to the file.
+(Furthermore, the user can cycle through many markup subrevisions, during the session, ctrl-t is explained below.)
+
+Efficiency: This command quickly saves the work in progress without requiring navigation through menus.
+Reliability: Ensures that the user’s content is reliably stored and retrievable in case of inadvertent closure or system failure, or most likely human or AI error.
+Session Revision Control: Allows for maintaining a history of document versions, facilitating easy rollback to previous states if needed during the session.
+
+Detailed Functionalities of the Write Command, ctrl-w:
+The ctrl-w command performs the following steps:
+The content of the top editing panel (Editor Panel) is retrieved and prepared to be written to a file. This involves collecting all the lines of text currently being edited.
+Determine the revision filename and rename previous version:
+The QK Editor holds a revision number, but checks the current directory, anyway, to make sure nothing is overwritten.
+The command determines the appropriate revision filename for this revision if there is something to avoid in the directory.
+Typically the backup filename is the session name with the next number in sequence concatenated to the filename.
+The editor renames the file which now contains the previous version of the text.
+Write content to file:
+The editor writes the collected content into the session file.
+Provide Filesystem Feedback:
+Upon completion, the editor will notify the user that the file has been successfully saved, or not. This feedback will appear in the left status column.
+
+Overall File Operation Process Using ctrl-w
+Session Management:
+The QK Editor has a session name that is also used as the filename for the currently executing Quick Session.
+Revision Tracking:
+The editor saves all the different revisions to ensure that prior versions can be retrieved if needed. Each save operation increments the revision number, storing the new version in a separate file.
+Backup and Safety:
+Upon invoking the ctrl-w command, the current session file is backed up by renaming it to ensure nothing is lost during the session. This process protects the user's and AI's previous versions.
+
+The ctrl-w, or the Write File Command, in QK, is much more than just writing a file, it is an entire revisioning system in one keystroke.
+
+
+QK Quick States:
+The left column displays line numbers, the current state or feedback, and the current Viewpoint.
+The Editor Panel operates in these states:
+'edit' state:
+This is a normal editor with typing letters, backspaces, arrow keys, and such.
+'line' state:
+This is when moving up and down lines, deleting lines, and such.
+The backspace will toggle the changes made by the AI or the user for the entire line.
+
+
+Inline spelling and text manipulations:
+One of the prominent features of QK, is its ability to correct spelling inline. Unlike traditional spell checking, where one has to manually highlight each word,
+click for a list of suggestions, and click to pick one, QK spells correctly everything on the current line, with just a keystroke.
+May I break the fifth wall here for a moment, and say that I have a learning disability that inhibits my ability to spell words. Dyslexia is a documented and researched malady, so I won't belabor the point.
+The spell checking system in QK is incredibly helpful to me. Every misspelled word I type, even when it is just mistyped, is instantly corrected for me, on the line, inline, by just smashing the AI Quick Key.
+
+The Spelling Viewpoint has 'Inline' textops (Please review the Viewpoint section). As such, the AI reply replaces the current line of the cursor location.
+Other Viewpoints of Editors and Gamers have Inline textops, also. The Telephone Viewpoint, replaces inline, the line of text, with a rhyme, or miscommunication.
+
+Lifecycle of the action to correctly spell a line, or partial line, of text or code.
+Have the Viewpoint be Spelling.
+Type text on a single line.
+Hit the Backslash key, the AI Quick Key.
+Check the corrected spelling, if it is not what you like, hit the backspace key, just above, to toggle back to the original text.
+Toggle back and forth from the original text, to the corrected text, with successive keystrokes of the backspace.
+
+The ease of use of the placement of the AI Quick Key -- The Backslash Key, and the Backspace Key to toggle the original and change, is highlighted here:
+
+      _____________
+     / ___________ \
+    | | BACKSPACE | | Backspace to toggle between original and corrections.
+    | |___________| |
+     \_____________/
+       ____________
+      / __________ \
+     | |BACKSLASH | | 
+     | |    \     | | Backslash to correct your text with AI.  Backslash is the AI Quick Key.  Send your Prompt to AI.
+     | |__________| |
+      \____________/
+  _________________
+ / _______________ \
+| |     ENTER     | | Enter to write and edit.
+| |_______________| |
+ \_________________/`
+
+At approximately 8 am ET on May 30, 2024, I'm confident that I am the original innovator behind utilizing the keyboard's backslash key for sending Engineering Prompts to an AI for analysis.
+This feature known as the 'AI Quick Key', is the use of the keyboard's backslash key conveniently located between the Enter key and the Backspace key, to send prompts to the AI.
+This feature, characterized by the innovative use of the backslash ('\') key, located above the enter key on standard keyboards,
+This, combined with the innovative use of the backspace key, enables users to easily toggle between AI-generated corrections and the original input.
+
+
+ 
+Viewpoints:
+
+A Viewpoint defines the type of AI assistance offered to edit text within the QK Editor. Each Viewpoint has a unique purpose, attribute prompts, textual editing markup operations,
+and specified AI model, including individualized parameters for that model designed to handle specific tasks.
+This modular approach allows users to switch and tailor the AI's assistance to their current editing requirements.
+
+Data Members of Viewpoint:
+Attributes:
+Description: A set of prompts, instructions, guidelines, and specific attributes associated with that model, and the editor markup types for the AI reply.
+
+Model:
+Description: Specifies the AI model utilized for the Viewpoint. Different models are used depending on the complexity and type of tasks. Examples include `gpt3.5-turbo` and `gpt-4o`.
+Example: 
+Spelling uses `gpt3.5-turbo`.
+Python Coder uses `gpt-4o`.
+
+The present version of QKCogEngine utilizes OpenAI's LLMs. Unlike some AI Editors, QKCogEngine is not constrained to a single provider.
+QK Editor, and its QKCogEngine is continuously integrating and upgrading to newer models like LLM Llama 3, et al., and other AI models as they evolve and improve.
+Or perhaps one company is having an intelligence sale and provides a cheaper service, users can configure the Viewpoint and choose the cheaper option.
+
+Max Tokens:
+Description: Defines the maximum number of tokens that the AI model can generate in response to a prompt. This limits the length of the output provided by the AI. (Please see OpenAI documentation).
+Example:
+For Spelling: 298 tokens.
+Python Coder: 4096 tokens (the max for that model).
+
+Text Operations (textops):
+Textops, or Text Operations is a prominent and unique feature of QK. Each AI reply is marked up in the Editor Panel in various ways. Each of the markups can be viewed, cycled through and edited with the ctrl-t command.
+Description: Specifies the types of text operations each Viewpoint supports, such as 'Inline', 'Markup', 'Deprecate', 'Refactor', and 'Concatenate'.
+Example:
+Spelling only needs to alter the current line with 'Inline' text operations.
+Python Coder creates 'Markup', 'Deprecate', 'Refactor', and 'Concatenate' markup versions of the Editor Panel.
+
+Role:
+Description: Defines the role that the AI assumes when operating under a particular Viewpoint. Roles include 'Editor', 'Coder', 'Gamer'.
+Example:
+Technical Writer has the role of 'Editor'.
+Python Coder has role of 'Coder'.
+Roles perform different markups and actions upon the reply after the AI Quick Key is pressed.
+
+
+
+The Viewpoint's textops list contains the markup operations to be performed on the text with the AI reply.
+
+Markup:
+Description: This feature creates an edited version of the text that includes new or modified functions and code. These changes are placed exactly where they should replace existing code, but they are commented out.
+Additionally, it concatenates the AI's entire response to the bottom of the text.
+Use Case: This is particularly useful for viewing changes made by AI compared to what was existing, as it allows for easy review and acceptance of code modifications.
+Example: Within the Python Coder viewpoint, this operation comments out the modified code directly underneath the original code. This permits easy comparison while appending the AI's complete response at the bottom for reference.
+
+Deprecate: 
+Description: This feature comments out the current functions and places the new versions directly beneath them. This markup retains the replaced functions in case testing proves they should be restored.
+Use Case: Replacing the existing code with the AI modified code, however, leaving the existing code in place in case it needs to be restored.
+Example: With the Python Coder Viewpoint, functions that have been modified are marked as deprecated and commented out, and the AI modified code is placed just below.
+
+Refactor:
+Description: This operation provides a subrevision of the text or code by substituting old elements, functions, code, with the AI modified versions.
+Use Case: Once the Markup subrevision is validated as correct, switch to the Refactored markup. In this subrevision, all functions are replaced with the new versions, making the file ready for saving.
+Example: With the Python Coder Viewpoint, the AI Coder will substitute old functions with the AI-modified or newly created ones, without retaining the original code.
+
+Concatenate:
+Description: This operation appends the AI's response to the existing content.
+Use Case: Reviewing AI's entire reply, without modifying the text in the Editor Panel.
+Example: In the Grammar viewpoint, viewing suggested alternative grammatical phrasings while preserving the original text.
+
+Inline:
+Description: This operation replaces the current line of text where the cursor is with the AI's response.
+Use Case: Correcting spelling errors or making slight adjustments to code or text directly where the cursor is located.
+Example: In the Spelling Viewpoint, the AI corrects all the misspelled words on a line without altering the punctuation or structure of the sentence.
+
+Replace:
+Description: This operation completely substitutes the existing content with the AIâs generated response.
+Use Case: Utilized for summarizing running content, or transforming a piece of text into a different format or style.
+With the hidden Prompt Summary Viewpoint, the original text is replaced with the new text.
+
+
+Viewpoints in QK are flexible and can be loaded and adjusted to fit specific roles like an Editor, Coder, and Gamer. This section will guide you on how to load, configure, and add new Viewpoints. 
+
+When QK starts, it looks in a directory named `Viewpoints` and loads all the '.Viewpoint' files located in its subdirectories.
+Currently, there are three subdirectories containing various viewpoint roles: Editor, Coder, Gamer.
+Each Viewpoint file is a JSON file of the data members of a Viewpoint object.
+Viewpoints can be changed and more viewpoints can be added.
+
+To add a Viewpoint, copy an existing Viewpoint file, e.g. to make a viewpoint called Acronym Generator:
+Copy an existing Viewpoint file, who is an editor, to a new file called Acronym_Generator.Viewpoint.
+Try Thesaurus.Viewpoint, because it has 'Inline' textops, and we are going to change what is on a line into an acronym.
+Edit this new file, changing the features and system prompts to direct the AI to, cost effectively, create an acronym.
+Set the ai model to gpt3.5-turbo, because it is cheap, and generating an acronym from words on a line sounds quite easy, so set max_tokens to 198.
+Change the system Prompts to "Take [line] and create an acronym out of it.", "Only reply with the letters of the acronym."
+
+
+
+The QK Editor features AI-assisted Prompt Engineering within a flexible text editing environment.  The key features include:
+  Choice of Multiple Markups:
+The Editor Panel supports various markup options, including 'Inline,' 'Refactor,' and 'Deprecate.'  This allows users to efficiently review AI-generated modifications and select the most appropriate one for their needs.
+  Inline Spelling:
+The whole line correction of spelling errors directly within the text enhances the editing process by minimizing manual correction efforts and allowing for smoother work flow.
+  Configurable Viewpoints:
+The Viewpoints system offers a modular approach to AI assistance for specific tasks such as spelling, grammar checking, or coding.
+Users can easily switch between these viewpoints with a quick key command, aligning the AI's focus with their current tasks.
+  Future Upgradable with AI from Multiple Companies:
+The QK Editor is designed with future AI models in mind. Abstracted code integrates with AI modules developed by various companies.
+This ensures that users can benefit from the latest advancements and improvements from multiple sources.
+  Featured an Intuitive User Interface with Quick Key Controls:
+The QK Editor boasts an intuitive user interface, making it easy to navigate and use.
+Quick key controls enhance the user experience by allowing for efficient and swift operation, boosting productivity and user satisfaction.
+These features collectively enhance the user's ability to tackle complex text and code editing tasks with greater accuracy and efficiency.
+The user-centric design of the QK Editor fosters seamless interaction with AI functionalities, providing a comprehensive toolkit that minimizes manual effort and optimizes workflow management.
+
+Key Features Recapitulation:
+  AI Quick Key:
+The innovative use of the backslash key (\) offers immediate engagement with AI, enabling quick and efficient execution of commands and corrections.
+  Prompt Engineering Panel:
+This panel provides a dynamic workspace to craft various AI prompts, facilitating commands ranging from grammar checks to technical documentation and coding tasks.
+  Editor Panel:
+A dual-pane view that supports direct text and code editing, enriched with AI-driven modifications, marked in multiple ways for user review and acceptance.
+  Inline Spelling and Text Manipulations:
+Allows for real-time corrections and enhancements without the cumbersome steps traditionally associated with spelling and grammar corrections.
+  Viewpoints:
+A modular system that customizes AI assistance by switching between predefined viewpoints, each tailored to specific tasks such as coding, grammar checking, or spelling.
+  Quick Sessions and Lifecycle Management:
+Streamlines prompt engineering into manageable sessions with built-in revision control, ensuring robust workflow continuity and ease of backtracking.
+
+
+Practical Applications:
+  Technical Writing:
+The QK Editor provides wonderful support for drafting, refining, and finalizing technical documents, ensuring accuracy and coherence.
+  Code Development:
+With dedicated viewpoints like Python Coder, users can streamline coding tasks, refactor code, and swiftly correct errors.
+  Quick Session Workflows:
+The automated handling of versions and prompts enhances project management, making it easier to track and audit changes for each prompting session.
+
+The QK Editor is an intelligent, efficient, and user-centric approach to generative AI text and code editing.
+As AI continues to evolve, the QK Editor is designed to continuously integrate and upgrade its functionalities, ensuring users always have access to the latest advancements in AI-assisted editing.
+Thank you for choosing the QK Editor. We are confident it will transform the way you work, making your tasks not only achievable but also enjoyable.
+
+
+
+
+'''
+[Freestyle][AI viewpoint][--Concatenate]
+Yes, there are a few misspelled words in  the document. Here are the corrections:
+'''
+1. "IntroductionnWelcome" should be "Introduction. Welcome"
+2. "Engineeringncode" should be "Engineering code" 
+3. "RedRose.pynType" should be "RedRose.py. Type"
+4. "architecture friendly" should be "architecture-friendly"
+5. "
+to the the code
+" should be "to the code"
+
+Additionally, there are some sentences where "n" appears instead of a space or newline character, which seems like incorrect formatting rather than a misspelling (e.g., "nThe QA Editor..."). These instances should be corrected for clarity.
+That is not n; that is the new lihe; why are you not seeing that
+
+

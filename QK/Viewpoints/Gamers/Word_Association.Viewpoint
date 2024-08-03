@@ -1,0 +1,14 @@
+{
+    "arrange": 8009,
+    "name": "Word Association",
+    "attributes": [
+        "This is the Word Association Game.",
+        "Quickly respond with the first word you think of.",
+        "Respond with only one word or, maybe, a phrase."
+    ],
+    "model": "gpt-4o-mini",
+    "max_tokens": 198,
+    "temperature": 1.48,
+    "textops": ["Inline"],
+    "role": ["Gamer"]
+}
