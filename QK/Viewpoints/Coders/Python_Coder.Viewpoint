@@ -16,5 +16,6 @@
     "max_tokens": 4096,
     "temperature": 0.688,
     "textops": ["Markup", "Deprecate", "Refactor", "Concatenate"],
+    "decoms": ["python", "text"],
     "role": ["Coder"]
 }
