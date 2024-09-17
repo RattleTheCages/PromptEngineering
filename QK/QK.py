@@ -21,7 +21,7 @@ import signal
 import subprocess
 import QKCogEngine
 
-qk_version = 'ver 1.01.00'
+qk_version = 'ver 1.01.01'
 parser = argparse.ArgumentParser()
 parser.add_argument('session', nargs='?', default="qkAi.txt")
 args = parser.parse_args()
@@ -380,7 +380,7 @@ class QKEditor:
         self.panels[self.context_panel]["text"].extend(self.clipboard)
         self.clipboard = undo_content
     def toggle_undo_redo_status(self):
-        self.status = 'redo' if self.status == 'undo' else 'undo' #?? wt? AI?
+        self.status = 'redo' if self.status == 'undo' else 'undo'
         self.display()
     def constrain_cursor_within_panel(self):
         panel = self.panels[self.context_panel]
@@ -490,7 +490,7 @@ class QKEditor:
                 sub_text = self.revision_manager.find_highest_markup_subrevision()
             if 'cpp' in self.viewpoints.get_decoms():
                 cpp_objs = self.context.extract_cpp_objects(ai_revise.choices[0].message.content)
-                #self.revision_manager.store_subrevision(response_text, self.panels[1]["text"], "replace")
+                #self.revision_manager.store_subrevision(response_text, self.panels[1]["text"], "Replace")
                 #commented_text = [f"// {line}" for line in response_text]
                 #self.panels[self.context_panel]["text"] = commented_text
                 for tx_op in textops:
@@ -501,9 +501,9 @@ class QKEditor:
                 self.panels[0]["col_num"] = 0
                 self.panels[0]["text"] = sub_text
             self.search_offset()
-        elif 'replace' in textops:
-            self.revision_manager.store_subrevision(response_text, self.panels[1]["text"], "replace")
+        elif 'Replace' in textops:
             self.panels[self.context_panel]["text"] = response_text
+            self.revision_manager.store_subrevision(response_text, self.panels[1]["text"], "Replace")
         elif 'Concatenate' in textops:
             bline = len(self.panels[self.context_panel]["text"])
             self.panels[self.context_panel]["line_num"] = bline
@@ -516,6 +516,7 @@ class QKEditor:
             self.insert_lines_at_current_line(" ")
             self.insert_lines_at_current_line("'''")
             self.panels[self.context_panel]["line_num"] = bline
+            self.revision_manager.store_subrevision(response_text, self.panels[1]["text"], "Concatenate")
             self.panels[self.context_panel]["col_num"] = 0
             self.search_offset()
     def refactor_edit_panel(self, response_text, objects, textops):

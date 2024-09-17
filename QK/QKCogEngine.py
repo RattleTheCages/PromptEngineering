@@ -12,7 +12,7 @@ import os
 import json
 from openai import OpenAI
 
-qkcogengine_version = 'ver 1.01.00'
+qkcogengine_version = 'ver 1.01.01'
 class QKCogEngine:
     def __init__(self, viewpoints):
         self.viewpoints = viewpoints
@@ -191,7 +191,7 @@ class Viewpoints:
                         'attributes': [],
                         'model': 'gpt-4o',
                         'max_tokens': 4096,
-                        'temperature': 0.88,
+                        'temperature': 0.98,
                         'textops': ['Concatenate'],
                         'role' : ['Editor']
                     },
@@ -209,9 +209,9 @@ class Viewpoints:
                             "Do not editorialize, just write a summary of the tasks completed or to be completed."
                         ],
                         'model': 'gpt-3.5-turbo',
-                        'max_tokens': 98,
+                        'max_tokens': 128,
                         "temperature": 0.28,
-                        'textops': ['replace'],
+                        'textops': ['Replace'],
                         'role' : ['Editor', 'System', 'Hidden']
                     }
                 }
