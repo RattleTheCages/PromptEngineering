@@ -1,10 +1,10 @@
 #
-#           QKCogEngine     -- An awesome AI Cognitive Engine
+#           QKCogEngine     -- An awesome Cognitive Engine for QK IDE
 #
-# The QKCogEngine is here!  To handle AI cognitive tasks.
-# With QKCogEngine ;), you don't just get results, you engage in an intelligent dialogue.
-# Ask for thoughtful responses, detailed analyses, or creative outputs in the most intuitive manner.
-# Select the viewpoint that suits your cognitive needs, from simple summaries to in-depth explorations.
+# QK's QKCogEngine handles prompt contexts, Viewpoints, and diverse AI APIs.
+# Select the viewpoint that suits your cognitive needs,
+# Customize tasks like coding, summaries, writing, and editing.
+# Optimize Viewpoints by selecting AI model its provider and their specific features.
 # This work is copyright, Daniel Huffman, pen name Rattle. All rights reserved.
 
 import re
@@ -12,14 +12,17 @@ import os
 import json
 from openai import OpenAI
 
-qkcogengine_version = 'ver 1.01.01'
+qkcogengine_version = 'ver 1.02.02'
 class QKCogEngine:
     def __init__(self, viewpoints):
         self.viewpoints = viewpoints
         self.cogessages = []
         self.usermsg = []
         self.client = None
+        self.apikey = None
         self.cogtextindex = 0
+    def set_apikey(self, apikey):
+        self.apikey = apikey
     def reset(self, viewpoint):
         self.cogessages = []
         self.usermsg = []
@@ -53,7 +56,7 @@ class QKCogEngine:
         self.usermsg.append(msg)
     def ai_query(self, viewpoints):
         if not self.client:
-            self.client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+            self.client = OpenAI(api_key=self.apikey)
         reform = self.client.chat.completions.create(
             model = viewpoints.get_model(),
             max_tokens = viewpoints.get_maxtokens(),
@@ -264,5 +267,6 @@ class Viewpoints:
                     self.viewpoints[name] = viewpoint
                     self.names.append(name)
             self.names.sort(key=lambda vp: self.viewpoints[vp]['arrange'])
+
 
 

@@ -1,5 +1,5 @@
 #
-#           QK      -- An awesome AI editor
+#           QK      -- An awesome AI IDE editor
 #
 # The QK Editor is AI assistance that offers a fully functioning editor.
 # With qk ;), expect AI to do the editing, not you.
@@ -10,18 +10,15 @@
 # This work is copyright, Daniel Huffman, pen name Rattle. All rights reserved.
 
 import sys
-
 import os
 import re
 import json
 import argparse
 import curses
 import signal
-
-import subprocess
 import QKCogEngine
 
-qk_version = 'ver 1.01.01'
+qk_version = 'ver 1.02.02'
 parser = argparse.ArgumentParser()
 parser.add_argument('session', nargs='?', default="qkAi.txt")
 args = parser.parse_args()
@@ -188,7 +185,14 @@ class EditRevisionManager:
 class QKEditor:
     def __init__(self, stdscr):
         signal.signal(signal.SIGINT, self.handle_sigint)
+        if hasattr(signal, 'SIGWINCH'):
+            signal.signal(signal.SIGWINCH, self.handle_resize)
         self.stdscr = stdscr
+        if curses.can_change_color():
+            curses.start_color()
+            curses.init_color(28, 8, 188, 8)
+            curses.init_pair(1, curses.COLOR_WHITE, 28)
+            self.stdscr.bkgd(' ', curses.color_pair(1))
         self.mode = 'line'
         self.status = 'hello'
         self.clipboard = []
@@ -199,6 +203,7 @@ class QKEditor:
         self.show_left_column = True
         self.search_results = []
         self.current_search_result = -1
+        self.aiapi_key = None
         self.panels = [
             {"line_num": 0, "col_num": 0, "text": [""]},
             {"line_num": 0, "col_num": 0, "text": [""]},
@@ -206,10 +211,10 @@ class QKEditor:
         self.panel_offsets = [0, 0]
         self.screen_height, self.screen_width = self.stdscr.getmaxyx()
         if self.screen_height < 32:
-            self.bottom_panel_size = self.screen_height // 4
-            self.top_panel_size = self.screen_height - self.bottom_panel_size
+            self.bottom_panel_size = (self.screen_height - 8) // 4
+            self.top_panel_size = self.screen_height - self.bottom_panel_size - 1
         else:
-            self.bottom_panel_size = 16
+            self.bottom_panel_size = 10
             self.top_panel_size = self.screen_height - self.bottom_panel_size - 1
         self.viewpoints = QKCogEngine.Viewpoints()
         self.load_viewpoints()
@@ -219,39 +224,39 @@ class QKEditor:
         self.keymap = {
             ord('\\'): self.handle_backslash,
             ord('\n'): self.handle_return,
-            11: self.handle_ctrl_k,
             23: self.write_file,
             18: self.read_file,
-            1: self.handle_ctrl_a,
-            16: self.handle_ctrl_p,
+            1: self.do_context_panel_switch,
+            22: self.do_viewpoint_change,
+            16: self.do_paste,
             6: self.search_text,
-            22: self.handle_ctrl_v,
             2: self.prev_search_result,
             4: self.delete_current_line,
-            20: self.handle_ctrl_t,
-            25: self.handle_ctrl_y,
-            24: self.handle_ctrl_x,
-            8: self.handle_ctrl_h,
+            20: self.handle_text_subrev,
+            25: self.handle_yank,
+            24: self.do_mark_of_x,
+            #8: self.handle_ctrl_h,
             7: self.handle_ctrl_g,
-            14: self.handle_ctrl_n,
+            14: self.handle_next,
             21: self.handle_ctrl_u,
-            5: self.handle_ctrl_e,
+            5: self.do_execute,
             17: self.handle_ctrl_q,
             19: self.handle_ctrl_s,
-            #127: lambda: self.handle_backspace(127),
-            curses.KEY_BACKSPACE: lambda: self.handle_backspace(curses.KEY_BACKSPACE),
+            11: self.handle_ctrl_k,
             curses.KEY_UP: self.handle_up_arrow,
             curses.KEY_DOWN: self.handle_down_arrow,
             curses.KEY_RIGHT: self.handle_right_arrow,
             curses.KEY_LEFT: self.handle_left_arrow,
             curses.KEY_DC: self.handle_del_key,
             curses.KEY_END: self.handle_end_key,
-            curses.KEY_HOME: self.handle_home_key
+            curses.KEY_HOME: self.handle_home_key,
+            #127: lambda: self.handle_backspace(127),
+            curses.KEY_BACKSPACE: lambda: self.handle_backspace(curses.KEY_BACKSPACE)
             #43: self.increase_top_panel_size,
             #45: self.decrease_top_panel_size,
         }
         if os.path.exists(args.session):
-            self.read_file(args.session)
+            self.reset_file()
         else:
             self.show_splash_screen()
     def handle_return(self):
@@ -349,6 +354,20 @@ class QKEditor:
             self.top_panel_size -= 1
             self.bottom_panel_size += 1
             self.adjust_panel_offset()
+    def handle_resize(self, sig, frame):
+        curses.endwin()
+        self.stdscr.refresh()
+        self.screen_height, self.screen_width = self.stdscr.getmaxyx()
+        self.update_panel_sizes()
+        self.display()
+    def update_panel_sizes(self):
+        if self.screen_height < 32:
+            self.bottom_panel_size = (self.screen_height - 8) // 4
+            self.top_panel_size = self.screen_height - self.bottom_panel_size - 1
+        else:
+            self.bottom_panel_size = 10
+            self.top_panel_size = self.screen_height - self.bottom_panel_size - 1
+        self.adjust_panel_offset()
     def insert_char(self, ch):
         line = self.panels[self.context_panel]["text"][self.panels[self.context_panel]["line_num"]]
         if ch in (curses.KEY_BACKSPACE, 127):
@@ -408,6 +427,12 @@ class QKEditor:
             self.panels[self.context_panel]["col_num"] -= 1
         self.mode = 'edit'
     def handle_backslash(self):
+                if not self.aiapi_key:
+                    self.aiapi_key = os.environ.get("OPENAI_API_KEY")
+                    if not self.aiapi_key:
+                        self.write_file()
+                        self.aiapi_key = self.prompt_input_box("Please enter your OpenAI key (Session saved): ").strip()
+                        self.context.set_apikey(self.aiapi_key)
                 if 'Coder' in self.viewpoints.get_role():
                     self.context_panel = 0
                 if self.viewpoints.get_current_name() == 'Freestyle':
@@ -485,7 +510,7 @@ class QKEditor:
             if 'python' in self.viewpoints.get_decoms():
                 python_objs = self.context.extract_python_objects(ai_revise.choices[0].message.content)
                 for tx_op in textops:
-                    markedup_code = self.refactor_edit_panel(response_text, python_objs, tx_op)
+                    markedup_code = self.refactor_python_edit_panel(response_text, python_objs, tx_op)
                     self.revision_manager.store_subrevision(markedup_code, self.panels[1]["text"], tx_op)
                 sub_text = self.revision_manager.find_highest_markup_subrevision()
             if 'cpp' in self.viewpoints.get_decoms():
@@ -519,118 +544,118 @@ class QKEditor:
             self.revision_manager.store_subrevision(response_text, self.panels[1]["text"], "Concatenate")
             self.panels[self.context_panel]["col_num"] = 0
             self.search_offset()
-    def refactor_edit_panel(self, response_text, objects, textops):
-                top_panel_copy = self.panels[0]["text"][:]
-                cursor_pos = 0
-                if 'Refactor' in textops or 'Deprecate' in textops:
-                    for function in objects:
-                        func_name = function['name']
-                        func_code = function['code']
-                        object_name = function.get('object', None)
-                        matched_class = None
-                        insert_pos = None
-                        end_pos = None
-                        for x, line in enumerate(top_panel_copy):
-                            if object_name and line.strip().startswith(f"class {object_name}"):
-                                matched_class = object_name
-                            if matched_class == object_name and func_name in line and re.match(r'^\s*def\b', line):
-                                indent_level = len(line) - len(line.lstrip())
-                                indent = ' ' * indent_level
-                                insert_pos = x
-                                for y, end_line in enumerate(top_panel_copy[x+1:], start=x+1):
-                                    if re.match(r'^\s*(def|class)\b', end_line):
-                                        end_pos = y
-                                        break
-                                if end_pos is None:
-                                    end_pos = len(top_panel_copy)
-                                commented_code = [f"{indent}''' [{self.viewpoints.get_current_name()} --Deprecate][{object_name}::{func_name}][Rev:{self.revision_manager.rev_num} Sub:{self.revision_manager.subrev_num+1}][Type: Deprecate]"] + [l for l in top_panel_copy[insert_pos:end_pos]] + [f"{indent}'''"]
-                                refactored_code = []
-                                if 'Deprecate' in textops:
-                                    refactored_code = [f"{indent}# [{self.viewpoints.get_current_name()} --Refactor][{object_name}::{func_name}][Rev:{self.revision_manager.rev_num} Sub:{self.revision_manager.subrev_num+1}][Type: Deprecate]\n"]
-                                for l in func_code.split('\n'):
-                                    if 'def' in l:
-                                        refactored_code += [indent + l]
-                                    else:
-                                        refactored_code += [l]
-                                if 'Deprecate' in textops:
-                                    top_panel_copy = (
-                                        top_panel_copy[:insert_pos] +
-                                        commented_code + refactored_code +
-                                        top_panel_copy[end_pos:]
-                                    )
-                                if 'Refactor' in textops:
-                                    top_panel_copy = (
-                                        top_panel_copy[:insert_pos] +
-                                        refactored_code +
-                                        top_panel_copy[end_pos:]
-                                    )
+    def refactor_python_edit_panel(self, response_text, objects, textops):
+        top_panel_copy = self.panels[0]["text"][:]
+        cursor_pos = 0
+        if 'Refactor' in textops or 'Deprecate' in textops:
+            for function in objects:
+                func_name = function['name']
+                func_code = function['code']
+                object_name = function.get('object', None)
+                matched_class = None
+                insert_pos = None
+                end_pos = None
+                for x, line in enumerate(top_panel_copy):
+                    if object_name and line.strip().startswith(f"class {object_name}"):
+                        matched_class = object_name
+                    if matched_class == object_name and func_name in line and re.match(r'^\s*def\b', line):
+                        indent_level = len(line) - len(line.lstrip())
+                        indent = ' ' * indent_level
+                        insert_pos = x
+                        for y, end_line in enumerate(top_panel_copy[x+1:], start=x+1):
+                            if isinstance(end_line, str) and re.match(r'^\s*(def|class)\b', end_line):
+                                end_pos = y
                                 break
-                        if insert_pos is None and not object_name:
-                            indent = ' ' * 4
-                            new_code = []
-                            new_code += [indent + l for l in func_code.split('\n')]
-                            top_panel_copy.extend([f"\n''' [{self.viewpoints.get_current_name()}[--new]\n'''", new_code, ""])
-                if 'Markup' in textops:
-                    for function in objects:
-                        func_name = function['name']
-                        func_code = function['code']
-                        object_name = function.get('object', None)
-                        matched_class = None
-                        insert_pos = None
-                        end_pos = None
-                        cursor_pos = None
-                        for x, line in enumerate(top_panel_copy):
-                            if object_name and line.strip().startswith(f"class {object_name}"):
-                                matched_class = object_name
-                            if matched_class == object_name and func_name in line and re.match(r'^\s*def\b', line):
-                                indent_level = len(line) - len(line.lstrip())
-                                indent = ' ' * indent_level
-                                insert_pos = x
-                                for y, end_line in enumerate(top_panel_copy[x+1:], start=x+1):
-                                    if re.match(r'^\s*(def|class)\b', end_line):
-                                        end_pos = y
-                                        break
-                                if end_pos is None:
-                                    end_pos = len(top_panel_copy)
-                                org_code =  [l for l in top_panel_copy[insert_pos:end_pos]]
-                                refactored_code = []
-                                refactored_code = [f"{indent}''' [{self.viewpoints.get_current_name()} --Refactor][{object_name}::{func_name}][Rev:{self.revision_manager.rev_num} Sub:{self.revision_manager.subrev_num+1}][Type: Markup]\n"]
-                                for l in func_code.split('\n'):
-                                    if 'def' in l:
-                                        refactored_code += [indent + l]
-                                    else:
-                                        refactored_code += [l]
-                                refactored_code += [f"{indent}'''"]
-                                refactored_code += [f"\n"]
-                                if cursor_pos == None:
-                                    cursor_pos = insert_pos
-                                else:
-                                    if insert_pos < cursor_pos:
-                                        cursor_pos = insert_pos
-                                top_panel_copy = (
-                                    top_panel_copy[:insert_pos] +
-                                    org_code + refactored_code +
-                                    top_panel_copy[end_pos:]
-                                )
+                        if end_pos is None:
+                            end_pos = len(top_panel_copy)
+                        commented_code = [f"{indent}''' [{self.viewpoints.get_current_name()} --Deprecate][{object_name}::{func_name}][Rev:{self.revision_manager.rev_num} Sub:{self.revision_manager.subrev_num+1}][Type: Deprecate]"] + [l for l in top_panel_copy[insert_pos:end_pos]] + [f"{indent}'''"]
+                        refactored_code = []
+                        if 'Deprecate' in textops:
+                            refactored_code = [f"{indent}# [{self.viewpoints.get_current_name()} --Refactor][{object_name}::{func_name}][Rev:{self.revision_manager.rev_num} Sub:{self.revision_manager.subrev_num+1}][Type: Deprecate]\n"]
+                        for l in func_code.split('\n'):
+                            if 'def' in l:
+                                refactored_code += [indent + l]
+                            else:
+                                refactored_code += [l]
+                        if 'Deprecate' in textops:
+                            top_panel_copy = (
+                                top_panel_copy[:insert_pos] +
+                                commented_code + refactored_code +
+                                top_panel_copy[end_pos:]
+                            )
+                        if 'Refactor' in textops:
+                            top_panel_copy = (
+                                top_panel_copy[:insert_pos] +
+                                refactored_code +
+                                top_panel_copy[end_pos:]
+                            )
+                        break
+                if insert_pos is None and not object_name:
+                    indent = ' ' * 4
+                    new_code = []
+                    new_code += [indent + l for l in func_code.split('\n')]
+                    top_panel_copy.extend([f"\n''' [{self.viewpoints.get_current_name()}[--new]\n'''", new_code, ""])
+        if 'Markup' in textops:
+            for function in objects:
+                func_name = function['name']
+                func_code = function['code']
+                object_name = function.get('object', None)
+                matched_class = None
+                insert_pos = None
+                end_pos = None
+                cursor_pos = None
+                for x, line in enumerate(top_panel_copy):
+                    if object_name and line.strip().startswith(f"class {object_name}"):
+                        matched_class = object_name
+                    if matched_class == object_name and func_name in line and re.match(r'^\s*def\b', line):
+                        indent_level = len(line) - len(line.lstrip())
+                        indent = ' ' * indent_level
+                        insert_pos = x
+                        for y, end_line in enumerate(top_panel_copy[x+1:], start=x+1):
+                            if isinstance(end_line, str) and re.match(r'^\s*(def|class)\b', end_line):
+                                end_pos = y
                                 break
-                        if insert_pos is None and not object_name:
-                            indent = ' ' * 4
-                            new_code = []
-                            new_code += [indent + l for l in func_code.split('\n')]
-                            top_panel_copy.extend([f"\n'' ' [{self.viewpoints.get_current_name()}[--new]\n'' '", new_code, ""])
-                    top_panel_copy.append(f"'''")
-                    top_panel_copy.append(f"[{self.viewpoints.get_current_name()}][--Concatenate][Rev: {self.revision_manager.rev_num}][Sub_rev: {self.revision_manager.subrev_num+1}]")
-                    top_panel_copy.extend(response_text)
-                    top_panel_copy.append(f"'''")
-                    top_panel_copy.append(f"")
-                    self.panels[0]["line_num"] = cursor_pos
-                elif 'Concatenate' in textops:
-                    top_panel_copy.append(f"'''")
-                    top_panel_copy.append(f"[{self.viewpoints.get_current_name()}][--Concatenate][Rev: {self.revision_manager.rev_num}][Sub_rev: {self.revision_manager.subrev_num+1}]")
-                    top_panel_copy.extend(response_text)
-                    top_panel_copy.append(f"'''")
-                    top_panel_copy.append(f"")
-                return top_panel_copy
+                        if end_pos is None:
+                            end_pos = len(top_panel_copy)
+                        org_code =  [l for l in top_panel_copy[insert_pos:end_pos]]
+                        refactored_code = []
+                        refactored_code = [f"{indent}''' [{self.viewpoints.get_current_name()} --Refactor][{object_name}::{func_name}][Rev:{self.revision_manager.rev_num} Sub:{self.revision_manager.subrev_num+1}][Type: Markup]\n"]
+                        for l in func_code.split('\n'):
+                            if 'def' in l:
+                                refactored_code += [indent + l]
+                            else:
+                                refactored_code += [l]
+                        refactored_code += [f"{indent}'''"]
+                        refactored_code += [f"\n"]
+                        if cursor_pos == None:
+                            cursor_pos = insert_pos
+                        else:
+                            if insert_pos < cursor_pos:
+                                cursor_pos = insert_pos
+                        top_panel_copy = (
+                            top_panel_copy[:insert_pos] +
+                            org_code + refactored_code +
+                            top_panel_copy[end_pos:]
+                        )
+                        break
+                if insert_pos is None and not object_name:
+                    indent = ' ' * 4
+                    new_code = []
+                    new_code += [indent + l for l in func_code.split('\n')]
+                    top_panel_copy.extend([f"\n''' [{self.viewpoints.get_current_name()}[--new]\n'''", new_code, ""])
+            top_panel_copy.append(f"'''")
+            top_panel_copy.append(f"[{self.viewpoints.get_current_name()}][--Concatenate][Rev: {self.revision_manager.rev_num}][Sub_rev: {self.revision_manager.subrev_num+1}]")
+            top_panel_copy.extend(response_text)
+            top_panel_copy.append(f"'''")
+            top_panel_copy.append(f"")
+            self.panels[0]["line_num"] = cursor_pos
+        elif 'Concatenate' in textops:
+            top_panel_copy.append(f"'''")
+            top_panel_copy.append(f"[{self.viewpoints.get_current_name()}][--Concatenate][Rev: {self.revision_manager.rev_num}][Sub_rev: {self.revision_manager.subrev_num+1}]")
+            top_panel_copy.extend(response_text)
+            top_panel_copy.append(f"'''")
+            top_panel_copy.append(f"")
+        return top_panel_copy
     def refactor_cpp_edit_panel(self, response_text, objects, textops):
         top_panel_copy = self.panels[0]["text"][:]
         cursor_pos = 0
@@ -748,8 +773,14 @@ class QKEditor:
         return top_panel_copy
     def write_file(self):
         self.status = self.revision_manager.write_file(self.viewpoints, self.panels[0]["text"], self.panels[1]["text"])
-    def read_file(self, filename):
-        self.status, self.panels[0]["text"] = self.revision_manager.read_file()
+    def read_file(self):
+        self.write_file()
+        filename = self.prompt_input_box("Please enter the filename to read: ")
+        if filename:
+            self.revision_manager = EditRevisionManager(filename, self.context)
+            self.reset_file()
+    def reset_file(self):
+            self.status, self.panels[0]["text"] = self.revision_manager.read_file()
     def delete_current_line(self):
         self.status = 'delln'
         current_line = self.panels[self.context_panel]["line_num"]
@@ -767,7 +798,7 @@ class QKEditor:
             self.panels[self.context_panel]["line_num"] = 0
             self.panels[self.context_panel]["col_num"] = 0
         self.adjust_panel_offset()
-    def handle_ctrl_x(self):
+    def do_mark_of_x(self):
         current_line = self.panels[self.context_panel]["line_num"]
         if current_line in self.yanked_lines:
             self.yanked_lines.remove(current_line)
@@ -782,14 +813,14 @@ class QKEditor:
         self.yanked_lines.add(current_line)
         self.mode = 'line'
         self.handle_down_arrow()
-    def handle_ctrl_y(self):
+    def handle_yank(self):
         if self.yank_mode_active == 'yank' and self.yanked_lines:
             self.clipboard = [self.panels[self.context_panel]["text"][line] for line in sorted(self.yanked_lines)]
             self.yanked_lines.clear()
             self.yank_mode_active = 'off'
             self.mode = 'line'
             self.status = 'yankd'
-    def handle_ctrl_p(self):
+    def do_paste(self):
         if self.clipboard:
             buffer = list(self.panels[self.context_panel]["text"])
             current_line = self.panels[self.context_panel]["text"][self.panels[self.context_panel]["line_num"]]
@@ -812,7 +843,7 @@ class QKEditor:
             self.adjust_panel_offset()
         else:
             self.insert_char(ord('\\'))
-    def handle_ctrl_v(self):
+    def do_viewpoint_change(self):
         self.context.reset(self.viewpoints)
         self.context.get_cogtext_by_name(self.viewpoints.next_viewpoint())
         self.adjust_panel_offset()
@@ -890,7 +921,7 @@ class QKEditor:
             self.panels[self.context_panel]["text"].append("")
         self.panels[self.context_panel]["line_num"] += 1
         self.adjust_panel_offset()
-    def handle_ctrl_n(self):
+    def handle_next(self):
         if self.search_results:
             self.next_search_result()
         else:
@@ -912,13 +943,13 @@ class QKEditor:
     def handle_end_key(self):
         self.panels[self.context_panel]["col_num"] = len(self.panels[self.context_panel]["text"][self.panels[self.context_panel]["line_num"]])
         self.mode = 'edit'
-    def handle_ctrl_a(self):
+    def do_context_panel_switch(self):
         self.context_panel = 1 - self.context_panel
         if self.context_panel == 1:
             self.mode = 'commd'
         else:
             self.mode = 'edit'
-    def handle_ctrl_e(self):
+    def do_execute(self):
         self.status = "execu"
         self.display()
         self.write_file()
@@ -979,7 +1010,7 @@ class QKEditor:
         self.mode = "not captured ctrl-q"
     def handle_ctrl_s(self):
         self.mode = "not captured ctrl-s"
-    def handle_ctrl_t(self):
+    def handle_text_subrev(self):
             self.revision_manager.subrev_being_viewed += 1
             sub_text = self.revision_manager.get_subrevision_text(self.revision_manager.subrev_being_viewed)
             if not sub_text:
@@ -1021,7 +1052,7 @@ class QKEditor:
                                 viewpoint_data = json.load(f)
                             self.viewpoints.load_viewpoint(viewpoint_data)
     def handle_sigint(self, sig, frame):
-        self.stdscr.addstr(38, 0, f'Ctrl-C, are you sure you want to exit? (Q/n/W), save your qk edit [{self.revision_manager.original_filename}], beforehand.', curses.A_REVERSE | curses.A_BOLD)
+        self.stdscr.addstr(12, 0, f'Ctrl-C, are you sure you want to exit? (Q/n/W), save your qk edit [{self.revision_manager.original_filename}], beforehand.', curses.A_REVERSE | curses.A_BOLD)
         self.stdscr.refresh()
         while True:
             ch = self.stdscr.getch()
@@ -1033,6 +1064,16 @@ class QKEditor:
             elif ch == ord('W'):
                 self.write_file()
                 raise SystemExit
+    def prompt_input_box(self, prompt):
+        screen_height, screen_width = self.stdscr.getmaxyx()
+        input_box = curses.newwin(3, screen_width - 4, screen_height // 2 - 1, 2)
+        input_box.box()
+        input_box.addstr(0, 2, prompt, curses.A_BOLD)
+        input_box.refresh()
+        curses.echo()
+        user_input = input_box.getstr(1, 2).decode('utf-8')
+        curses.noecho()
+        return user_input
     def handle_sigtstp(self, sig, frame):
         self.status = 'pause'
         self.context_panel = 1
@@ -1052,7 +1093,7 @@ class QKEditor:
         self.status = 'splsh'
         splash_text = [
             "",
-            "Welcome to the AIQuickKeyEditor!",
+            "Welcome to the AI QuickKey Editor!",
             "    qk for short ;)",
             "",
             "Control Characters:",
@@ -1102,6 +1143,4 @@ def main(stdscr):
 
 if __name__ == "__main__":
     curses.wrapper(main)
-
-
 
