@@ -9,9 +9,8 @@
         "For example, if the style is technical or professional, offer rephrasing at the same level or higher, of grammar and content rephrasing.",
         "If the style is less professional, your reply does not have to be as stringent."
     ],
-    "model": "gpt-4o",
+    "model": "o1-mini",
     "max_tokens": 698,
-    "temperature": 1,
     "textops": ["Concatenate"],
     "role": ["Editor"]
 }

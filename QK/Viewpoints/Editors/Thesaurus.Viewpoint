@@ -4,9 +4,8 @@
     "attributes": [
         "Provide synonyms for [word]."
     ],
-    "model": "gpt-3.5-turbo",
+    "model": "o1-mini",
     "max_tokens": 398,
-    "temperature": 1,
     "textops": ["Inline"],
     "role": ["Editor"]
 }

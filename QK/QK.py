@@ -18,7 +18,7 @@ import curses
 import signal
 import QKCogEngine
 
-qk_version = 'ver 1.02.02'
+qk_version = 'ver 1.03.02'
 parser = argparse.ArgumentParser()
 parser.add_argument('session', nargs='?', default="qkAi.txt")
 args = parser.parse_args()
@@ -138,8 +138,9 @@ class EditRevisionManager:
             return
         self.cogengine.reset_viewpoint(viewpoints, "Pmt_Summary")
         #self.cogengine.add_usermsg(pmt_entries)
-        for line in self.pmt_subrev_entries():
-            self.cogengine.add_cogtext("user", line)
+        #for line in self.pmt_subrev_entries():
+        #    self.cogengine.add_cogtext("user", line)
+        self.cogengine.add_cogtext("user", self.pmt_subrev_entries())
         self.cogengine.save_cogtext()
         summary = self.cogengine.ai_query(viewpoints)
         self.pmt_summary = summary.choices[0].message.content[:96]
@@ -464,24 +465,24 @@ class QKEditor:
                         self.yanked_lines.clear()
                         self.yank_mode_active = 'off'
                     userlines_user += "\n".join(line for line in self.panels[0]["text"] if line.strip())
-                    userlines_system = "\n".join(line for line in self.panels[1]["text"] if line.strip())
-                    #self.context.add_cogtext("system", userlines_system)
-                    #self.context.add_cogtext("user", userlines_user)
-                    for line in self.panels[1]["text"]:
-                        if line.strip():
-                            self.context.add_cogtext("system", line)
-                    for line in self.panels[0]["text"]:
-                        if line.strip():
-                            self.context.add_cogtext("user", line)
+                    userlines_system = "\n user prompt:".join(line for line in self.panels[1]["text"] if line.strip())
+                    self.context.add_cogtext("user", userlines_system)
+                    self.context.add_cogtext("user", userlines_user)
+                    #for line in self.panels[1]["text"]:
+                    #    if line.strip():
+                    #        self.context.add_cogtext("system", line)
+                    #for line in self.panels[0]["text"]:
+                    #    if line.strip():
+                    #        self.context.add_cogtext("user", line)
                 if self.context_panel == 1:
                     if not self.viewpoints.test_textop('Inline'):
                         userlines = "\n".join(line for line in self.panels[1]["text"] if line.strip())
                         self.context.add_cogtext("user", userlines)
                     else:
                         if not self.viewpoints.test_textop('Inline'):
-                            userlines_system = "\n".join(line for line in self.panels[1]["text"] if line.strip())
+                            userlines_system = "\n user prompt:".join(line for line in self.panels[1]["text"] if line.strip())
                             userlines_user = "n".join(line for line in self.panels[0]["text"] if line.strip())
-                            self.context.add_cogtext("system", userlines_system)
+                            self.context.add_cogtext("user", userlines_system)
                             self.context.add_cogtext("user", userlines_user)
                 self.context.save_cogtext()
                 self.clipboard = [line for line in self.panels[self.context_panel]["text"]]

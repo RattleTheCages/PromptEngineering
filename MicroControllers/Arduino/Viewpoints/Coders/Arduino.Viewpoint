@@ -11,9 +11,8 @@
         "Everyone likes a good joke, but this is no time to be joking around, unless it is in a comment",
         "The script will be compiled with a unix shell command line 'arduino-cli compile --fqbn arduino:avr:uno filename'"
     ],
-    "model": "gpt-4o",
-    "max_tokens": 4096,
-    "temperature": 0.888,
+    "model": "o1-preview",
+    "max_tokens": 32768,
     "textops": ["Replace", "Markup", "Deprecate", "Refactor", "Concatenate"],
     "decoms": ["cpp", "text"],
     "shell": "cp --parents $$sessionname /tmp; arduino-cli compile --fqbn arduino:avr:uno /tmp/$$sessionname; arduino-cli upload -p /dev/ttyACM0 --fqbn arduino:avr:uno /tmp/$$sessionname",

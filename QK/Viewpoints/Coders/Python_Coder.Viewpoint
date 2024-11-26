@@ -12,7 +12,7 @@
         "Everyone likes a good joke, but this is no time to be joking around, unless it is in a comment",
         "When your task is to replace a variable, ensure all downstream code referencing the variable is appropriately updated with the change."
     ],
-    "model": "gpt-4o",
+    "model": "o1-preview",
     "max_tokens": 4096,
     "temperature": 0.688,
     "textops": ["Markup", "Deprecate", "Refactor", "Concatenate"],

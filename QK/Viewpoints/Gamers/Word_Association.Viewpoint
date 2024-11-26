@@ -6,9 +6,8 @@
         "Quickly respond with the first word you think of.",
         "Respond with only one word or, maybe, a phrase."
     ],
-    "model": "gpt-4o-mini",
+    "model": "o1-mini",
     "max_tokens": 198,
-    "temperature": 1.48,
     "textops": ["Inline"],
     "role": ["Gamer"]
 }

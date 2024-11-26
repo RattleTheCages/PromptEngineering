@@ -14,9 +14,8 @@
         "Use a writing style consisting of: Objective Tone, Technical Style, Formal Instructions, Educational Style.",
         "Produce content that is informative and neutral, steering clear of a commercial tone. Explain the subject as if teaching a course, emphasizing functionality over persuasion."
     ],
-    "model": "gpt-4o",
-    "max_tokens": 4096,
-    "temperature": 0.98,
+    "model": "o1-preview",
+    "max_tokens":32768,
     "textops": ["Concatenate"],
     "role": ["Editor"]
 }

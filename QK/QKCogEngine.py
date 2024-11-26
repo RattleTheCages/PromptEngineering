@@ -12,7 +12,7 @@ import os
 import json
 from openai import OpenAI
 
-qkcogengine_version = 'ver 1.02.02'
+qkcogengine_version = 'ver 1.03.02'
 class QKCogEngine:
     def __init__(self, viewpoints):
         self.viewpoints = viewpoints
@@ -27,14 +27,16 @@ class QKCogEngine:
         self.cogessages = []
         self.usermsg = []
         for attribute in viewpoint.get_attributes():
-            self.add_cogtext("system", attribute)
+            self.add_cogtext("user", attribute)
     def reset_viewpoint(self, viewpoints, view):
         self.cogessages = []
         self.usermsg = []
         for attribute in viewpoints.get_attributes_by_name(view):
-            self.add_cogtext("system", attribute)
+            self.add_cogtext("user", attribute)
     def add_cogtext(self, role, content):
         self.cogessages.append({"role": role, "content": content})
+        #if not content == "":
+        #    exit()
     def get_cogtext(self):
         context = []
         for line in self.cogessages:
@@ -49,7 +51,7 @@ class QKCogEngine:
         return context
     def get_cogtext_by_name(self, name):
         attributes = self.viewpoints.get_attributes_by_name(name)
-        context = [{"role": "system", "content": attribute} for attribute in attributes]
+        context = [{"role": "user", "content": attribute} for attribute in attributes]
         context += [{"role": "user", "content": umsg} for umsg in self.usermsg]
         return context
     def add_usermsg(self, msg):
@@ -59,8 +61,7 @@ class QKCogEngine:
             self.client = OpenAI(api_key=self.apikey)
         reform = self.client.chat.completions.create(
             model = viewpoints.get_model(),
-            max_tokens = viewpoints.get_maxtokens(),
-            temperature = viewpoints.get_temperature(),
+            max_completion_tokens = viewpoints.get_maxtokens(),
             messages = self.get_cogtext()
         )
         self.add_cogtext("assistant", reform.choices[0].message.content)
@@ -71,7 +72,6 @@ class QKCogEngine:
             json.dump({
                 "model": self.viewpoints.get_model(),
                 "max_tokens": self.viewpoints.get_maxtokens(),
-                "temperature": self.viewpoints.get_temperature(),
                 "messages": self.get_cogtext()
             }, cogf)
     def extract_cpp_objects(self, content):
@@ -211,9 +211,8 @@ class Viewpoints:
                             "Do not provide disclaimers.",
                             "Do not editorialize, just write a summary of the tasks completed or to be completed."
                         ],
-                        'model': 'gpt-3.5-turbo',
-                        'max_tokens': 128,
-                        "temperature": 0.28,
+                        'model': 'o1-mini',
+                        'max_tokens': 256,
                         'textops': ['Replace'],
                         'role' : ['Editor', 'System', 'Hidden']
                     }
@@ -240,8 +239,6 @@ class Viewpoints:
             return self.viewpoints[self.get_current_name()]['role']
         def get_shell(self):
             return self.viewpoints[self.get_current_name()].get('shell', None)
-        def get_temperature(self):
-            return self.viewpoints[self.get_current_name()]['temperature']
         def next_viewpoint(self):
                 starting_index = self.current_index
                 while True:
