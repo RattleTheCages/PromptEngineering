@@ -18,7 +18,7 @@ import curses
 import signal
 import QKCogEngine
 
-qk_version = 'ver 1.03.02'
+qk_version = 'ver 1.04.02'
 parser = argparse.ArgumentParser()
 parser.add_argument('session', nargs='?', default="qkAi.txt")
 args = parser.parse_args()
@@ -236,7 +236,6 @@ class QKEditor:
             20: self.handle_text_subrev,
             25: self.handle_yank,
             24: self.do_mark_of_x,
-            #8: self.handle_ctrl_h,
             7: self.handle_ctrl_g,
             14: self.handle_next,
             21: self.handle_ctrl_u,
@@ -251,15 +250,16 @@ class QKEditor:
             curses.KEY_DC: self.handle_del_key,
             curses.KEY_END: self.handle_end_key,
             curses.KEY_HOME: self.handle_home_key,
-            #127: lambda: self.handle_backspace(127),
             curses.KEY_BACKSPACE: lambda: self.handle_backspace(curses.KEY_BACKSPACE)
-            #43: self.increase_top_panel_size,
-            #45: self.decrease_top_panel_size,
         }
         if os.path.exists(args.session):
             self.reset_file()
         else:
-            self.show_splash_screen()
+            self.mode = 'splsh'
+            if self.screen_height < 24 or self.screen_width < 118:
+                self.small_splash_screen()
+            else:
+                self.show_splash_screen()
     def handle_return(self):
         line = self.panels[self.context_panel]["text"][self.panels[self.context_panel]["line_num"]]
         self.context.add_usermsg(line)
@@ -468,12 +468,6 @@ class QKEditor:
                     userlines_system = "\n user prompt:".join(line for line in self.panels[1]["text"] if line.strip())
                     self.context.add_cogtext("user", userlines_system)
                     self.context.add_cogtext("user", userlines_user)
-                    #for line in self.panels[1]["text"]:
-                    #    if line.strip():
-                    #        self.context.add_cogtext("system", line)
-                    #for line in self.panels[0]["text"]:
-                    #    if line.strip():
-                    #        self.context.add_cogtext("user", line)
                 if self.context_panel == 1:
                     if not self.viewpoints.test_textop('Inline'):
                         userlines = "\n".join(line for line in self.panels[1]["text"] if line.strip())
@@ -505,8 +499,6 @@ class QKEditor:
             current_line_number = self.panels[self.context_panel]["line_num"]
             #self.revision_manager.write_pmy_file_line(response_text[0], current_line_number, self.viewpoints, 'Reply')
             self.insert_as_current_line(response_text[0])
-        #else:
-        #    self.revision_manager.store_subrevision(self.panels[0]["text"], self.panels[1]["text"], "Original")
         if 'Coder' in self.viewpoints.get_role():
             if 'python' in self.viewpoints.get_decoms():
                 python_objs = self.context.extract_python_objects(ai_revise.choices[0].message.content)
@@ -1091,7 +1083,6 @@ class QKEditor:
                 self.insert_char(ch)
     def show_splash_screen(self):
         self.stdscr.clear()
-        self.status = 'splsh'
         splash_text = [
             "",
             "Welcome to the AI QuickKey Editor!",
@@ -1133,9 +1124,25 @@ class QKEditor:
             if y >= len(lines_to_show):
                 break
             x = ((screen_width - splash_text_width) // 2) - 2
-            self.stdscr.addstr(y, x, line)
             self.stdscr.addstr(y, 0, f"{y + 1:03}<{self.mode:5}>", curses.A_REVERSE)
+            try:
+                self.stdscr.addstr(y, x, line)
+            except curses.error:
+                pass
         self.mode = ''
+        self.stdscr.refresh()
+        self.stdscr.getch()
+    def small_splash_screen(self):
+        self.stdscr.clear()
+        small_msg = [
+            "Welcome to the AI QuickKey Editor!",
+            "    qk for short ;)"
+        ]
+        for y, line in enumerate(small_msg):
+            try:
+                self.stdscr.addstr(y, 0, line)
+            except curses.error:
+                pass
         self.stdscr.refresh()
         self.stdscr.getch()
 def main(stdscr):

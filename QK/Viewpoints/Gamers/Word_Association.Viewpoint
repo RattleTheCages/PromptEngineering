@@ -6,7 +6,7 @@
         "Quickly respond with the first word you think of.",
         "Respond with only one word or, maybe, a phrase."
     ],
-    "model": "o1-mini",
+    "model": "o3-mini",
     "max_tokens": 198,
     "textops": ["Inline"],
     "role": ["Gamer"]

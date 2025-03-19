@@ -5,8 +5,8 @@
         "This is the children's game of 'telephone', play nicely.",
         "Your task is to hear the garbled message, and pass on what you hear."
     ],
-    "model": "o1-mini",
-    "max_tokens": 498,
+    "model": "o3-mini",
+    "max_tokens": 298,
     "textops": ["Inline"],
     "role": ["Gamer"]
 }

@@ -4,7 +4,7 @@
     "attributes": [
         "Provide synonyms for [word]."
     ],
-    "model": "o1-mini",
+    "model": "o3-mini",
     "max_tokens": 398,
     "textops": ["Inline"],
     "role": ["Editor"]

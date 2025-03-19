@@ -12,8 +12,8 @@
         "Everyone likes a good joke, but this is no time to be joking around, unless it is in a comment",
         "When your task is to replace a variable, ensure all downstream code referencing the variable is appropriately updated with the change."
     ],
-    "model": "o1-preview",
-    "max_tokens": 32768,
+    "model": "o1",
+    "max_tokens": 99998,
     "textops": ["Markup", "Deprecate", "Refactor", "Concatenate"],
     "decoms": ["cpp", "text"],
     "role": ["Coder"]

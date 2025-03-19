@@ -12,7 +12,7 @@ import os
 import json
 from openai import OpenAI
 
-qkcogengine_version = 'ver 1.03.02'
+qkcogengine_version = 'ver 1.04.02'
 class QKCogEngine:
     def __init__(self, viewpoints):
         self.viewpoints = viewpoints
@@ -192,9 +192,8 @@ class Viewpoints:
                         'arrange': 6000,
                         'name': 'Freestyle',
                         'attributes': [],
-                        'model': 'gpt-4o',
-                        'max_tokens': 4096,
-                        'temperature': 0.98,
+                        'model': 'o1',
+                        'max_tokens': 99998,
                         'textops': ['Concatenate'],
                         'role' : ['Editor']
                     },
@@ -211,7 +210,7 @@ class Viewpoints:
                             "Do not provide disclaimers.",
                             "Do not editorialize, just write a summary of the tasks completed or to be completed."
                         ],
-                        'model': 'o1-mini',
+                        'model': 'o3-mini',
                         'max_tokens': 256,
                         'textops': ['Replace'],
                         'role' : ['Editor', 'System', 'Hidden']
