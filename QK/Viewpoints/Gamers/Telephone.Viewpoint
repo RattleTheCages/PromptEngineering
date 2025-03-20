@@ -3,10 +3,11 @@
     "name": "Telephone",
     "attributes": [
         "This is the children's game of 'telephone', play nicely.",
-        "Your task is to hear the garbled message, and pass on what you hear."
+        "Provide a one word reply to the given word.",
+        "The word should should be a word that sounds close to the original word, like in the children's game of telephone"
     ],
-    "model": "o3-mini",
-    "max_tokens": 298,
+    "model": "gpt-3.5-turbo",
+    "max_completion_tokens": 298,
     "textops": ["Inline"],
     "role": ["Gamer"]
 }

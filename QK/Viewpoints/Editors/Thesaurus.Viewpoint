@@ -2,10 +2,12 @@
     "arrange": 4444,
     "name": "Thesaurus",
     "attributes": [
-        "Provide synonyms for [word]."
+        "Provide synonyms the given word.",
+        "Only procide a word or list of words."
     ],
     "model": "o3-mini",
-    "max_tokens": 398,
+    "max_completion_tokens": 1024,
     "textops": ["Inline"],
     "role": ["Editor"]
 }
+

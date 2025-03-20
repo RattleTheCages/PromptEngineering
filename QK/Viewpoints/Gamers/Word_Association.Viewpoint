@@ -6,8 +6,8 @@
         "Quickly respond with the first word you think of.",
         "Respond with only one word or, maybe, a phrase."
     ],
-    "model": "o3-mini",
-    "max_tokens": 198,
+    "model": "gpt-3.5-turbo",
+    "max_completion_tokens": 298,
     "textops": ["Inline"],
     "role": ["Gamer"]
 }

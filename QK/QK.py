@@ -223,7 +223,7 @@ class QKEditor:
         self.context = QKCogEngine.QKCogEngine(self.viewpoints)
         self.revision_manager = EditRevisionManager(args.session, self.context)
         self.keymap = {
-            ord('\\'): self.handle_backslash,
+            ord('\\'): self.handle_backslash_ai_request,
             ord('\n'): self.handle_return,
             23: self.write_file,
             18: self.read_file,
@@ -427,7 +427,7 @@ class QKEditor:
         if self.panels[self.context_panel]["col_num"] > 0:
             self.panels[self.context_panel]["col_num"] -= 1
         self.mode = 'edit'
-    def handle_backslash(self):
+    def handle_backslash_ai_request(self):
                 if not self.aiapi_key:
                     self.aiapi_key = os.environ.get("OPENAI_API_KEY")
                     if not self.aiapi_key:

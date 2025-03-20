@@ -15,7 +15,7 @@
         "Produce content that is informative and neutral, steering clear of a commercial tone. Explain the subject as if teaching a course, emphasizing functionality over persuasion."
     ],
     "model": "o1",
-    "max_tokens": 99998,
+    "max_completion_tokens": 99998,
     "textops": ["Concatenate"],
     "role": ["Editor"]
 }

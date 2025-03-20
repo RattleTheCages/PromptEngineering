@@ -61,7 +61,7 @@ class QKCogEngine:
             self.client = OpenAI(api_key=self.apikey)
         reform = self.client.chat.completions.create(
             model = viewpoints.get_model(),
-            max_completion_tokens = viewpoints.get_maxtokens(),
+            max_completion_tokens = viewpoints.get_max_completion_tokens(),
             messages = self.get_cogtext()
         )
         self.add_cogtext("assistant", reform.choices[0].message.content)
@@ -71,7 +71,7 @@ class QKCogEngine:
         with open(f"cogtext_debug_{self.cogtextindex}.json", 'w') as cogf:
             json.dump({
                 "model": self.viewpoints.get_model(),
-                "max_tokens": self.viewpoints.get_maxtokens(),
+                "max_completion_tokens": self.viewpoints.get_max_completion_tokens(),
                 "messages": self.get_cogtext()
             }, cogf)
     def extract_cpp_objects(self, content):
@@ -180,11 +180,12 @@ class Viewpoints:
                             "Take each sentence and output a corresponding corrected sentence.",
                             "Answer only using the correctly spelled words, do not change punctuation or sentence structure.",
                             "Do not change the placement of the new lines.",
-                            "The user wants the answer strictly formatted as the sample sentence."
+                            "The user wants the answer strictly formatted as the sample sentence.",
+                            "If the word, or all the words, are spelled correctly, just respond with the original"
                         ],
                         "model": "gpt-3.5-turbo",
-                        "max_tokens": 298,
-                        "temperature": 0.68,
+                        "max_completion_tokens": 298,
+                        #"temperature": 0.68,
                         "textops": ["Inline"],
                         "role": ["Editor"]
                     },
@@ -193,7 +194,7 @@ class Viewpoints:
                         'name': 'Freestyle',
                         'attributes': [],
                         'model': 'o1',
-                        'max_tokens': 99998,
+                        'max_completion_tokens': 99998,
                         'textops': ['Concatenate'],
                         'role' : ['Editor']
                     },
@@ -211,7 +212,7 @@ class Viewpoints:
                             "Do not editorialize, just write a summary of the tasks completed or to be completed."
                         ],
                         'model': 'o3-mini',
-                        'max_tokens': 256,
+                        'max_completion_tokens': 256,
                         'textops': ['Replace'],
                         'role' : ['Editor', 'System', 'Hidden']
                     }
@@ -228,8 +229,8 @@ class Viewpoints:
             return self.viewpoints[name]['attributes']
         def get_model(self):
             return self.viewpoints[self.get_current_name()]['model']
-        def get_maxtokens(self):
-            return self.viewpoints[self.get_current_name()]['max_tokens']
+        def get_max_completion_tokens(self):
+            return self.viewpoints[self.get_current_name()]['max_completion_tokens']
         def get_textops(self):
             return self.viewpoints[self.get_current_name()]['textops']
         def get_decoms(self):

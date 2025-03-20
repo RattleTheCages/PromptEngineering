@@ -10,7 +10,7 @@
         "If the style is less professional, your reply does not have to be as stringent."
     ],
     "model": "o3-mini",
-    "max_tokens": 1698,
+    "max_completion_tokens": 1698,
     "textops": ["Concatenate"],
     "role": ["Editor"]
 }
